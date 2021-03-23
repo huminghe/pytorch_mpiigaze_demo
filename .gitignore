@@ -106,3 +106,5 @@ ENV/
 
 .idea
 *.jpg
+*.mp4
+*.avi
