@@ -9,6 +9,7 @@ import cv2
 import torch.hub
 import yacs.config
 import yaml
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +81,10 @@ def _download_face_model() -> pathlib.Path:
 def _generate_dummy_camera_params(config: yacs.config.CfgNode) -> None:
     logger.debug('Called _generate_dummy_camera_params()')
     if config.demo.image_path:
-        path = pathlib.Path(config.demo.image_path).expanduser()
+        listdir = os.listdir(config.demo.image_path)
+        image_path_name = os.path.join(config.demo.image_path, listdir[0])
+        print(str(image_path_name), flush=True)
+        path = pathlib.Path(image_path_name).expanduser()
         image = cv2.imread(path.as_posix())
         h, w = image.shape[:2]
     elif config.demo.video_path:
@@ -209,8 +213,8 @@ def _check_path_all(config: yacs.config.CfgNode) -> None:
     _check_path(config, 'gaze_estimator.checkpoint')
     _check_path(config, 'gaze_estimator.camera_params')
     _check_path(config, 'gaze_estimator.normalized_camera_params')
-    if config.demo.image_path:
-        _check_path(config, 'demo.image_path')
+    # if config.demo.image_path:
+    #     _check_path(config, 'demo.image_path')
     if config.demo.video_path:
         _check_path(config, 'demo.video_path')
 

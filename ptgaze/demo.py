@@ -8,6 +8,10 @@ import cv2
 import numpy as np
 import yacs.config
 
+import os
+import argparse
+from tqdm import tqdm
+
 from ptgaze import (Face, FacePartsName, GazeEstimationMethod, GazeEstimator,
                     Visualizer)
 
@@ -43,20 +47,24 @@ class Demo:
             raise ValueError
 
     def _run_on_image(self):
-        image = cv2.imread(self.config.demo.image_path)
-        self._process_image(image)
-        if self.config.demo.display_on_screen:
-            while True:
-                key_pressed = self._wait_key()
-                if self.stop:
-                    break
-                if key_pressed:
-                    self._process_image(image)
-                cv2.imshow('image', self.visualizer.image)
-        if self.config.demo.output_dir:
-            name = pathlib.Path(self.config.demo.image_path).name
-            output_path = pathlib.Path(self.config.demo.output_dir) / name
-            cv2.imwrite(output_path.as_posix(), self.visualizer.image)
+        image_path = self.config.demo.image_path
+        # print(str(image_path), flush=True)
+        listdir = os.listdir(image_path)
+        for img_name in tqdm(listdir):
+            image_path_name = os.path.join(image_path, img_name)
+            image = cv2.imread(image_path_name)
+            self._process_image(image)
+            if self.config.demo.display_on_screen:
+                while True:
+                    key_pressed = self._wait_key()
+                    if self.stop:
+                        break
+                    if key_pressed:
+                        self._process_image(image)
+                    cv2.imshow('image', self.visualizer.image)
+            if self.config.demo.output_dir:
+                output_path = os.path.join(self.config.demo.output_dir, img_name)
+                cv2.imwrite(output_path, self.visualizer.image)
 
     def _run_on_video(self) -> None:
         while True:
